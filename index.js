@@ -56,6 +56,26 @@ async function run() {
       const result = await mongodbDatabase.findOne(cursor);
       res.send(result);
     })
+    // Ubdate Coffee-----------------
+    app.put('/addCoffee/:id', async (req, res)=>{
+      const id = req.params.id;
+      const filterId = { _id: new ObjectId(id)};
+      const options = { upsert: true };
+      const updateDoc = req.body;
+      const coffee ={
+        $set:{
+          coffeename : updateDoc.coffeename,
+           Quantity : updateDoc.Quantity,
+           Supplier : updateDoc.Supplier,
+           Taste: updateDoc.Taste,
+           Category: updateDoc.Category,
+           Details: updateDoc.Details,
+           photo : updateDoc.photo
+        }
+      };
+      const result = await mongodbDatabase.updateOne(filterId, coffee,  options);
+      res.send(result);
+    })
 
 
     // Send a ping to confirm a successful connection
