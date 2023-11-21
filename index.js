@@ -8,6 +8,12 @@ const port = process.env.PORT || 5000;
 //  middeware-------
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://coffee-shop-52178.web.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 //  middeware-------END
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gzl03ny.mongodb.net/?retryWrites=true&w=majority`;
@@ -29,6 +35,7 @@ async function run() {
     // const database = client.db("insertDB");
     // const haiku = database.collection("haiku");
     const mongodbDatabase = client.db("coffeeStor").collection("storData");
+    const userDatabase = client.db("coffeeStor").collection("user");
     // AddCoffee-----------
     app.post('/addCoffee', async(req, res)=>{
       const newCoffee = req.body;
@@ -75,6 +82,34 @@ async function run() {
       };
       const result = await mongodbDatabase.updateOne(filterId, coffee,  options);
       res.send(result);
+    })
+
+    // User Database --------------------------
+
+    app.post('/user', async (req, res) =>{
+      const user = req.body;
+      console.log(user)
+      const result = await userDatabase.insertOne(user);
+      res.send(result);
+    })
+    app.get('/user', async (req, res) =>{
+      const cursor = userDatabase.find();
+      const result = await cursor.toArray();
+      res.send(result);
+  })
+    // LogIn time set
+    app.patch('/user', async (req, res)=>{
+      const user = req.body;
+      console.log(user)
+      const userEmail = { email:user.email};
+      const ubdateDoc ={
+        $set:{
+          listTimeLogin:user.listTime
+        }
+      }
+      const result = await userDatabase.updateOne(userEmail, ubdateDoc);
+      res.send(result);
+      
     })
 
 
